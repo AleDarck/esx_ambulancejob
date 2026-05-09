@@ -15,6 +15,24 @@ local function isDeadState(src, bool)
 	Player(src).state:set('isDead', bool, true)
 end
 
+-- ============================================================
+-- SISTEMA DE REMATE: detectar cuando alguien dispara al jugador caído
+-- El cliente notifica al servidor que fue rematado
+-- ============================================================
+RegisterNetEvent('esx_ambulancejob:playerFinishedOff')
+AddEventHandler('esx_ambulancejob:playerFinishedOff', function()
+	local source = source
+
+	-- Solo procesar si el jugador está registrado como muerto
+	if deadPlayers[source] then
+		-- Notificar al propio jugador que fue rematado (crawl -> dead)
+		TriggerClientEvent('esx_ambulancejob:finishedOff', source)
+
+		-- Actualizar estado interno
+		deadPlayers[source] = 'dead_final'
+	end
+end)
+
 RegisterNetEvent('esx_ambulancejob:revive')
 AddEventHandler('esx_ambulancejob:revive', function(playerId)
 	playerId = tonumber(playerId)
@@ -180,12 +198,11 @@ ESX.RegisterServerCallback('esx_ambulancejob:removeItemsAfterRPDeath', function(
 		for i = 1, #xPlayer.loadout, 1 do
 			xPlayer.removeWeapon(xPlayer.loadout[i].name)
 		end
-	else -- save weapons & restore em' since spawnmanager removes them
+	else
 		for i = 1, #xPlayer.loadout, 1 do
 			table.insert(playerLoadout, xPlayer.loadout[i])
 		end
 
-		-- give back wepaons after a couple of seconds
 		CreateThread(function()
 			Wait(5000)
 			for i = 1, #playerLoadout, 1 do
@@ -228,7 +245,6 @@ ESX.RegisterServerCallback('esx_ambulancejob:buyJobVehicle', function(source, cb
 	local xPlayer = ESX.GetPlayerFromId(source)
 	local price = getPriceFromHash(vehicleProps.model, xPlayer.job.grade_name, type)
 
-	-- vehicle model not found
 	if price == 0 then
 		cb(false)
 	else
@@ -368,7 +384,7 @@ AddEventHandler('esx_ambulancejob:setDeathStatus', function(isDead)
 	if type(isDead) == 'boolean' then
 		MySQL.update('UPDATE users SET is_dead = ? WHERE identifier = ?', { isDead, xPlayer.identifier })
 		isDeadState(source, isDead)
-			
+
 		if not isDead then
 			local Ambulance = ESX.GetExtendedPlayers("job", "ambulance")
 			for _, xPlayer in pairs(Ambulance) do
@@ -376,5 +392,4 @@ AddEventHandler('esx_ambulancejob:setDeathStatus', function(isDead)
 			end
 		end
 	end
-
 end)

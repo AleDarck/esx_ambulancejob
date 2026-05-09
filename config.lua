@@ -4,7 +4,7 @@ Config.DrawDistance               = 10.0 -- How close do you need to be in order
 Config.Debug                      = ESX.GetConfig().EnableDebug
 Config.Marker                     = {type = 1, x = 1.5, y = 1.5, z = 0.5, r = 102, g = 0, b = 102, a = 100, rotate = false}
 
-Config.ReviveReward               = 700  -- Revive reward, set to 0 if you don't want it enabled
+Config.ReviveReward               = 0  -- Revive reward, set to 0 if you don't want it enabled
 Config.LoadIpl                    = true -- Disable if you're using fivem-ipl or other IPL loaders
 
 Config.Locale = GetConvar('esx:locale', 'es')
@@ -35,18 +35,17 @@ Config.zoom = {
 	step = 0.5
 }
 
-Config.EarlyRespawnTimer          = 60000 * 1  -- time til respawn is available
-Config.BleedoutTimer              = 60000 * 10 -- time til the player bleeds out
+Config.EarlyRespawnTimer          = 60000 * 2  -- time til respawn is available 60000 * 1
+Config.BleedoutTimer              = 60000 * 10 -- time til the player bleeds out 60000 * 10
 
 Config.EnablePlayerManagement     = false -- Enable society managing (If you are using esx_society).
 
-Config.RemoveWeaponsAfterRPDeath  = true
-Config.RemoveCashAfterRPDeath     = true
-Config.RemoveItemsAfterRPDeath    = true
+Config.RemoveWeaponsAfterRPDeath  = false 
+Config.RemoveItemsAfterRPDeath    = false 
 
 -- Let the player pay for respawning early, only if he can afford it.
 Config.EarlyRespawnFine           = false
-Config.EarlyRespawnFineAmount     = 5000
+Config.EarlyRespawnFineAmount     = 0
 
 Config.OxInventory                = ESX.GetConfig().OxInventory
 Config.RespawnPoints = {

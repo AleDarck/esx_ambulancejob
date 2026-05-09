@@ -18,9 +18,14 @@ server_scripts {
 }
 
 client_scripts {
-	'client/*.lua'
+	'client/deathcam.lua',
+	'client/main.lua',
+	'client/finishedoff.lua',
+	'client/job.lua',
+	'client/vehicle.lua'
 }
 
 dependencies {
 	'es_extended',
+	'AX_hud'
 }
