@@ -88,14 +88,17 @@ end)
 
 RegisterNetEvent('esx:onPlayerDeath')
 AddEventHandler('esx:onPlayerDeath', function(data)
-	local source = source
-	deadPlayers[source] = 'dead'
-	local Ambulance = ESX.GetExtendedPlayers("job", "ambulance")
-	isDeadState(source, true)
+    local source = source
+    deadPlayers[source] = 'dead'
+    local Ambulance = ESX.GetExtendedPlayers("job", "ambulance")
+    isDeadState(source, true)
 
-	for _, xPlayer in pairs(Ambulance) do
-		xPlayer.triggerEvent('esx_ambulancejob:PlayerDead', source)
-	end
+    for _, xPlayer in pairs(Ambulance) do
+        xPlayer.triggerEvent('esx_ambulancejob:PlayerDead', source)
+    end
+
+    -- NUEVO: notificar a AX_Looting con confirmación de muerte real
+    TriggerEvent('AX_Looting:internal:playerConfirmedDead', source)
 end)
 
 RegisterServerEvent('esx_ambulancejob:svsearch')
@@ -392,4 +395,25 @@ AddEventHandler('esx_ambulancejob:setDeathStatus', function(isDead)
 			end
 		end
 	end
+end)
+
+-- Export para que otros recursos puedan limpiar el estado de muerte de un jugador
+exports('clearDeadState', function(playerId)
+    playerId = tonumber(playerId)
+    if not playerId then return end
+
+    if deadPlayers[playerId] then
+        deadPlayers[playerId] = nil
+        isDeadState(playerId, false)
+
+        local xPlayer = ESX.GetPlayerFromId(playerId)
+        local Ambulance = ESX.GetExtendedPlayers('job', 'ambulance')
+        for _, xP in pairs(Ambulance) do
+            xP.triggerEvent('esx_ambulancejob:PlayerNotDead', playerId)
+        end
+
+        if xPlayer then
+            MySQL.update('UPDATE users SET is_dead = 0 WHERE identifier = ?', { xPlayer.identifier })
+        end
+    end
 end)
